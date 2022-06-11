@@ -5,7 +5,7 @@ plugins {
 group 'org.example'
 version '1.0-SNAPSHOT'
 
-
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -23,12 +23,19 @@ test {
 project.ext.lwjglVersion = "3.2.3"
 project.ext.jomlVersion = "1.10.4"
 project.ext.lwjglNatives = "natives-windows"
-
+project.ext.imguiVersion = '1.76-0.9'
 
 dependencies {
     // ImGUI stuff
-    //implementation fileTree('libs') { include '*.jar'}
-    implementation "io.github.spair:imgui-java-app:1.81.0"
+   // runtimeOnly 'io.imgui.java:binding:1.76-0.9'
+    //implementation group: 'io.imgui.java', name: 'lwjgl3', version: '1.76-0.9'
+//    implementation group: 'io.github.spair', name: 'imgui-java-binding', version: '1.81.0'
+   // implementation group: 'io.github.spair', name: 'imgui-java-lwjgl3', version: '1.81.0'
+
+//    implementation "io.imgui.java:binding:$imguiVersion"
+//    implementation "io.imgui.java:lwjgl3:$imguiVersion"
+    implementation fileTree('libs') { include '*.jar'}
+   // implementation "io.github.spair:imgui-java-app:1.81.0"
 
     //LWJGL stuff
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")

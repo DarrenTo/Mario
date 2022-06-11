@@ -21,8 +21,6 @@ public class Window {
     private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
-    private String glslVersion = null;
-
     private int width, height;
     private String title;
     private long glfwWindow;
@@ -106,7 +104,6 @@ public class Window {
         }
 
         // ImGui stuff
-        glslVersion = "#version 330 core";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
@@ -153,7 +150,6 @@ public class Window {
         io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
 
         imGuiGlfw.init(glfwWindow, true);
-        imGuiGl3.init(glslVersion);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -182,13 +178,15 @@ public class Window {
                 currentScene.update(dt);
             }
 
-            imGuiGlfw.newFrame();
+            this.imGuiLayer.update(dt, imGuiGlfw,currentScene);
 
-            ImGui.newFrame();
-
-            ImGui.showDemoWindow();
-            ImGui.render();
-            imGuiGl3.renderDrawData(ImGui.getDrawData());
+//            imGuiGlfw.newFrame();
+//
+//            ImGui.newFrame();
+//
+//            ImGui.showDemoWindow();
+//            ImGui.render();
+//            imGuiGl3.renderDrawData(ImGui.getDrawData());
 
 
             if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {

@@ -4,6 +4,7 @@ package jade;
 import components.Sprite;
 import components.SpriteRenderer;
 import components.SpriteSheet;
+import imgui.ImGui;
 import org.joml.Vector2f;
 import util.AssetPool;
 
@@ -60,6 +61,11 @@ public class LevelEditorScene extends Scene{
         this.renderer.render();
     }
 
-
+    @Override
+    public void imgui() {
+        ImGui.begin("Test window");
+        ImGui.text("random text");
+        ImGui.end();
+    }
 
 }
