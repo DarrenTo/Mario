@@ -1,5 +1,7 @@
-package jade;
+package scenes;
 
+
+import jade.Window;
 
 // For playing level
 public class LevelScene extends Scene {

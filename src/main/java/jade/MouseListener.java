@@ -11,7 +11,7 @@ public class MouseListener {
     private static MouseListener instance;
     private double scrollX, scrollY;
     private double xPos, yPos, lastY, lastX;
-    private boolean mouseButtonPressed[] = new boolean[3];
+    private boolean mouseButtonPressed[] = new boolean[9];
     private boolean isDragging;
 
     private MouseListener() {
@@ -88,7 +88,7 @@ public class MouseListener {
 
     //returns world Y coord
     public static float getOrthoY() {
-        float currentY = getY();
+        float currentY = Window.getHeight() - getY();
 
         // gl_position (-1, 1) coords
         currentY = (currentY / (float)Window.getHeight()) * 2.0f - 1.0f;
