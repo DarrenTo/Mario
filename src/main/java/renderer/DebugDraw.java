@@ -4,6 +4,7 @@ import jade.Window;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import util.AssetPool;
+import util.JMath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -124,6 +125,34 @@ public class DebugDraw {
     }
 
     public static void addLine2D(Vector2f from, Vector2f to, Vector3f color, int lifetime) {
+        if (lines.size() >= MAX_LINES) return;
+        DebugDraw.lines.add(new Line2D(from, to, color, lifetime));
+    }
+
+    // ===================================================
+    // Add Box2D methods
+    // ===================================================
+    public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation,
+                                Vector3f color, int lifetime) {
+        Vector2f min = new Vector2f((center).sub(new Vector2f((dimensions).mul(0.5f))));
+        Vector2f max = new Vector2f((center).add(new Vector2f(dimensions).mul(0.5f)));
+        Vector2f[] vertices = {
+            new Vector2f(min.x, min.y), new Vector2f(min.x, max.y),
+            new Vector2f(max.x, max.y), new Vector2f(max.x, min.y)
+        };
+
+        if (rotation != 0.0f) {
+            for (Vector2f vert : vertices) {
+                JMath.rotate(vert, rotation, center);
+            }
+        }
+    }
+
+
+    // ===================================================
+    // Add Circle methods
+    // ===================================================
+    public static void addCircle2D(Vector2f from, Vector2f to, Vector3f color, int lifetime) {
         if (lines.size() >= MAX_LINES) return;
         DebugDraw.lines.add(new Line2D(from, to, color, lifetime));
     }
