@@ -269,4 +269,171 @@ public class IntersectionDetector2D {
     }
 
 
+    public static boolean circleAndAABB(Circle circle, AABB box) {
+        Vector2f min = box.getMin();
+        Vector2f max = box.getMax();
+
+        Vector2f closestPointToCircle = new Vector2f((circle.getCenter()));
+        if (closestPointToCircle.x < min.x) {
+            closestPointToCircle.x = min.x;
+        } else if (closestPointToCircle.x > max.x) {
+            closestPointToCircle.x = max.x;
+        }
+
+        if (closestPointToCircle.y < min.y) {
+            closestPointToCircle.y = min.y;
+        } else if (closestPointToCircle.y > max.y) {
+            closestPointToCircle.y = max.y;
+        }
+
+        Vector2f circleToBox = new Vector2f(circle.getCenter()).sub(closestPointToCircle);
+
+        return circleToBox.lengthSquared() <= circle.getRadius() * circle.getRadius();
+    }
+
+    public static boolean circleAndBox2D(Circle circle, Box2D box) {
+        // Treat the box like AABB, after rotating
+        Vector2f min = new Vector2f();
+        Vector2f max = new Vector2f(box.getHalfSize()).mul(2.0f);
+
+        // Create a circle in box's local space
+        Vector2f r = new Vector2f(circle.getCenter()).sub(box.getRigidbody().getPosition());
+        JMath.rotate(r, -box.getRigidbody().getRotation(), new Vector2f(0, 0));
+        Vector2f localCirclePos = new Vector2f(r).add(box.getHalfSize());
+
+        Vector2f closestPointToCircle = new Vector2f((localCirclePos));
+        if (closestPointToCircle.x < min.x) {
+            closestPointToCircle.x = min.x;
+        } else if (closestPointToCircle.x > max.x) {
+            closestPointToCircle.x = max.x;
+        }
+
+        if (closestPointToCircle.y < min.y) {
+            closestPointToCircle.y = min.y;
+        } else if (closestPointToCircle.y > max.y) {
+            closestPointToCircle.y = max.y;
+        }
+
+        Vector2f circleToBox = new Vector2f(localCirclePos).sub(closestPointToCircle);
+
+        return circleToBox.lengthSquared() <= circle.getRadius() * circle.getRadius();
+
+    }
+
+    // ==================================================
+    // AABB vs. Primitive Tests
+    // ==================================================
+
+    public static boolean AABBandCircle(AABB box, Circle circle) {
+        return circleAndAABB(circle, box);
+    }
+
+    public static boolean AABBandAABB(AABB b1, AABB b2) {
+        Vector2f axesToTest[] = {new Vector2f(0, 1), new Vector2f(1, 0)};
+        for (int i = 0; i < axesToTest.length; i++) {
+            if (!overlapOnAxis(b1, b2, axesToTest[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean AABBAndBox2D(AABB b1, Box2D b2) {
+        Vector2f axesToTest[] = {
+                new Vector2f(0, 1), new Vector2f(1, 0),
+                new Vector2f(0, 1), new Vector2f(1, 0)
+        };
+        JMath.rotate(axesToTest[2], b2.getRigidbody().getRotation(), new Vector2f());
+        JMath.rotate(axesToTest[3], b2.getRigidbody().getRotation(), new Vector2f());
+
+        for (int i = 0; i < axesToTest.length; i++) {
+            if (!overlapOnAxis(b1, b2, axesToTest[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // ==================================================
+    // SAT (Separating Axis Theorem) helpers
+    // ==================================================
+
+    // REQUIRED: axis must be a normalized vector
+    private static boolean overlapOnAxis(AABB b1, AABB b2, Vector2f axis) {
+        Vector2f b1Interval = getInterval(b1, axis);
+        Vector2f b2Interval = getInterval(b2, axis);
+
+        return ((b1Interval.y >= b2Interval.x) && (b1Interval.x <= b2Interval.y));
+    }
+
+    private static boolean overlapOnAxis(Box2D b1, AABB b2, Vector2f axis) {
+        Vector2f b1Interval = getInterval(b1, axis);
+        Vector2f b2Interval = getInterval(b2, axis);
+
+        return ((b1Interval.y >= b2Interval.x) && (b1Interval.x <= b2Interval.y));
+    }
+
+    private static boolean overlapOnAxis(AABB b1, Box2D b2, Vector2f axis) {
+        return overlapOnAxis(b2, b1, axis);
+    }
+
+    private static boolean overlapOnAxis(Box2D b1, Box2D b2, Vector2f axis) {
+        Vector2f b1Interval = getInterval(b1, axis);
+        Vector2f b2Interval = getInterval(b2, axis);
+
+        return ((b1Interval.y >= b2Interval.x) && (b1Interval.x <= b2Interval.y));
+    }
+
+    // Get the min/max value of points projected onto an axis
+    private static Vector2f getInterval(AABB rect, Vector2f axis) {
+        Vector2f result = new Vector2f(0, 0);
+
+        Vector2f min = rect.getMin();
+        Vector2f max = rect.getMax();
+        Vector2f vertices[] = {
+                new Vector2f(min.x, min.y),
+                new Vector2f(min.x, max.y),
+                new Vector2f(max.x, min.y),
+                new Vector2f(max.x, max.y)
+        };
+
+        result.x = axis.dot(vertices[0]);
+        result.y = result.x;
+
+        for (int i = 1; i < 4; i++) {
+            float projection = axis.dot(vertices[i]);
+            if (projection < result.x) {
+                result.x = projection;
+            }
+            if (projection > result.y) {
+                result.y = projection;
+            }
+        }
+
+        return result;
+    }
+
+    // Get the min/max value of points projected onto an axis
+    private static Vector2f getInterval(Box2D rect, Vector2f axis) {
+        Vector2f result = new Vector2f(0, 0);
+
+        Vector2f vertices[] = rect.getVertices();
+
+        result.x = axis.dot(vertices[0]);
+        result.y = result.x;
+
+        for (int i = 1; i < 4; i++) {
+            float projection = axis.dot(vertices[i]);
+            if (projection < result.x) {
+                result.x = projection;
+            }
+            if (projection > result.y) {
+                result.y = projection;
+            }
+        }
+
+        return result;
+    }
 }
