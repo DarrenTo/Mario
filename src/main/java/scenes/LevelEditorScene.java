@@ -12,6 +12,8 @@ import jade.GameObject;
 import jade.Prefabs;
 import jade.Transform;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+import renderer.DebugDraw;
 import util.AssetPool;
 
 // For editing Level
@@ -73,11 +75,13 @@ public class LevelEditorScene extends Scene {
         AssetPool.getTexture("assets/images/blendImage2.png");
     }
 
+    float x = 0.0f;
+    float y = 0.0f;
 
     @Override
     public void update(float dt) {
         levelEditorStuff.update(dt);
-
+        DebugDraw.addBox2D(new Vector2f(400, 200), new Vector2f(64, 32), 30, new Vector3f(0, 1,0), 1);
         for (GameObject go : this.gameObjects) {
             go.update(dt);
         }

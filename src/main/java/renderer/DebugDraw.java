@@ -120,7 +120,6 @@ public class DebugDraw {
     }
 
     public static void addLine2D(Vector2f from, Vector2f to, Vector3f color) {
-        // TODO: ADD CONSTANTS FOR COMMON COLORS
         addLine2D(from, to, color, 1);
     }
 
@@ -132,10 +131,20 @@ public class DebugDraw {
     // ===================================================
     // Add Box2D methods
     // ===================================================
+
+    public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation) {
+        // TODO: ADD CONSTANTS FOR COMMON COLORS
+        addBox2D(center, dimensions,rotation,  new Vector3f(0, 1, 0), 1);
+    }
+
+    public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation, Vector3f color) {
+        addBox2D(center, dimensions,rotation, color, 1);
+    }
+
     public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation,
                                 Vector3f color, int lifetime) {
-        Vector2f min = new Vector2f((center).sub(new Vector2f((dimensions).mul(0.5f))));
-        Vector2f max = new Vector2f((center).add(new Vector2f(dimensions).mul(0.5f)));
+        Vector2f min = new Vector2f(center).sub(new Vector2f(dimensions).mul(0.5f));
+        Vector2f max = new Vector2f(center).add(new Vector2f(dimensions).mul(0.5f));
         Vector2f[] vertices = {
             new Vector2f(min.x, min.y), new Vector2f(min.x, max.y),
             new Vector2f(max.x, max.y), new Vector2f(max.x, min.y)
@@ -146,15 +155,43 @@ public class DebugDraw {
                 JMath.rotate(vert, rotation, center);
             }
         }
+
+        addLine2D(vertices[0], vertices[1], color, lifetime); //BotL to TopL
+        addLine2D(vertices[0], vertices[3], color, lifetime); // BotL to BotR
+        addLine2D(vertices[1], vertices[2], color, lifetime); //TopL to TopR
+        addLine2D(vertices[2], vertices[3], color, lifetime); //TopR to BotR
     }
 
 
     // ===================================================
     // Add Circle methods
     // ===================================================
-    public static void addCircle2D(Vector2f from, Vector2f to, Vector3f color, int lifetime) {
-        if (lines.size() >= MAX_LINES) return;
-        DebugDraw.lines.add(new Line2D(from, to, color, lifetime));
+    public static void addCircle2D(Vector2f center, float radius) {
+        // TODO: ADD CONSTANTS FOR COMMON COLORS
+        addCircle2D(center, radius, new Vector3f(0,1,0), 1);
+    }
+
+    public static void addCircle2D(Vector2f center, float radius, Vector3f color) {
+        addCircle2D(center, radius, color, 1);
+    }
+
+    public static void addCircle2D(Vector2f center, float radius, Vector3f color, int lifetime) {
+        Vector2f[] points = new Vector2f[20]; // determines how well-defined the circle will be
+        int increment = 360 / points.length;
+        int currentAngle = 0;
+
+        for (int i = 0; i < points.length; i++) {
+            Vector2f tmp = new Vector2f(radius, 0);
+            JMath.rotate(tmp, currentAngle, new Vector2f());
+            points[i] = new Vector2f(tmp).add(center);
+
+            if (i > 0) {
+                addLine2D(points[i - 1], points[i], color, lifetime);
+            }
+            currentAngle += increment;
+        }
+
+        addLine2D(points[points.length - 1], points[0], color, lifetime);
     }
 
 
